@@ -19,6 +19,10 @@ const char * BasePublisher::topic(void) {
 BaseMessage * BasePublisher::alloc(void) {
 	BaseMessage * msg;
 
+#ifdef R2MW_TEST
+	palSetPad(TEST_GPIO, TEST1);
+#endif /* R2MW_TEST */
+
 	chSysLock();
 	msg = allocI();
 	chSysUnlock();
@@ -40,20 +44,21 @@ BaseMessage * BasePublisher::allocI(void) {
 
 void BasePublisher::release(BaseMessage* msg) {
 	chSysLock();
-
-	/* if the reference count is reduced to zero then free the memory */
-	if (msg->dereference()) {
-		chPoolAddI(&_pool, msg);
-	}
-
+	releaseI(msg);
 	chSysUnlock();
 }
 
+extern Thread * tp;
 void BasePublisher::releaseI(BaseMessage* msg) {
 	/* if the reference count is reduced to zero then free the memory */
 	if (msg->dereference()) {
-		if ((int)msg % 2)
-			while(1);
 		chPoolAddI(&_pool, msg);
+#ifdef R2MW_TEST
+		palClearPad(TEST_GPIO, TEST1);
+//		if (tp != NULL) {
+//			chSchReadyI(tp);
+//			tp = NULL;
+//		}
+#endif /* R2MW_TEST */
 	}
 }

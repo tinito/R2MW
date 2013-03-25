@@ -11,6 +11,6 @@ public:
 	void reference(void);
 	bool_t dereference(void);
 	void reset(void);
-}__attribute__((packed));;
+}__attribute__((packed));
 
 #endif

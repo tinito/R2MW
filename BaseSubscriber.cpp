@@ -8,6 +8,7 @@ BaseSubscriber::BaseSubscriber(const char * topic, size_t msg_size, uint8_t * bu
 	_buffer = buffer;
 	_msg_size = msg_size;
 	_size = size;
+	_msg_queue = 0;
 	chMBInit(&_mailbox, (msg_t *) mail, size);
 }
 

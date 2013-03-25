@@ -171,8 +171,6 @@ void Node::spin(systime_t timeout) {
 					sub->callback(msg);
 					sub->release(msg);
 				}
-			} else {
-//				sub->callback();
 			}
 		}
 		eid++;
