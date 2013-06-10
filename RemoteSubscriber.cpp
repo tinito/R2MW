@@ -3,7 +3,7 @@
 #include "Middleware.hpp"
 
 RemoteSubscriber::RemoteSubscriber(const char * topic, size_t msg_size,
-		uint8_t * buffer, BaseMessage * mail, uint32_t size) : BaseSubscriber(topic, msg_size, buffer, mail, size) {
+		uint8_t * buffer, BaseMessage ** queue_buffer, uint32_t queue_size) : BaseSubscriber(topic, msg_size, buffer, queue_buffer, queue_size) {
 	_next = NULL;
 	_next_notify = NULL;
 	_id = 999;
@@ -30,11 +30,13 @@ RemoteSubscriber * RemoteSubscriber::notify(BaseMessage *msg) {
 RemoteSubscriber * RemoteSubscriber::notify(BaseMessage *msg, int &n) {
 	Middleware & mw = Middleware::instance();
 
-	if(_msg_queue < size()) {
-		mw.transport().send(this, msg, _msg_size);
+	/* Put message on queue. */
+	if(_queue.putI(msg)) {
+		// TODO: put & get, qui basterebbe cnt, oppure si segnala il transport e fa lui la get (ma da quale sorgente?)
+		mw.transport().send(this, _queue.getI(), _msg_size);
 		msg->reference();
-		_msg_queue++;
 		n++;
+		palTogglePad(LED_GPIO, LED2);
 	}
 
 	return _next_notify;
@@ -42,7 +44,7 @@ RemoteSubscriber * RemoteSubscriber::notify(BaseMessage *msg, int &n) {
 
 void RemoteSubscriber::subscribe(LocalPublisher * publisher) {
 	_source = publisher;
-	publisher->subscribe(this, _buffer, chMBSizeI(&_mailbox));
+	publisher->subscribe(this, _buffer, _queue.sizeI());
 }
 
 void RemoteSubscriber::id(uint16_t id) {

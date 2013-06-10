@@ -19,7 +19,7 @@ protected:
 	callback_t _callback;
 public:
 	LocalSubscriber(const char * topic, size_t msg_size, uint8_t * buffer,
-			BaseMessage * mail, uint32_t size, callback_t callback);
+			BaseMessage ** queue_buffer, uint32_t queue_size, callback_t callback);
 	LocalSubscriber * next(void);
 	void next(LocalSubscriber* sub);
 	void link(LocalSubscriber* sub);

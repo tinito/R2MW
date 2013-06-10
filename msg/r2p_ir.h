@@ -1,5 +1,5 @@
-#ifndef __R2P_IR_H_
-#define TOPICS_H_
+#ifndef __R2P_IR_H__
+#define __R2P_IR_H__
 
 #include "BaseMessage.hpp"
 

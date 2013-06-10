@@ -4,6 +4,7 @@
 #include "ch.hpp"
 
 #include "BaseMessage.hpp"
+#include "MessageQueue.hpp"
 #include "BasePublisher.hpp"
 #include "LocalPublisher.hpp"
 #include "RemotePublisher.hpp"

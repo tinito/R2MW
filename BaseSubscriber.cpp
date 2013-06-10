@@ -1,15 +1,16 @@
 #include "ch.hpp"
 
+#include "BaseMessage.hpp"
+#include "MessageQueue.hpp"
 #include "BaseSubscriber.hpp"
 
-BaseSubscriber::BaseSubscriber(const char * topic, size_t msg_size, uint8_t * buffer, BaseMessage * mail,  uint32_t size) {
+BaseSubscriber::BaseSubscriber(const char * topic, size_t msg_size, uint8_t * buffer, BaseMessage ** queue_buffer,  uint32_t queue_size)
+	: _queue(queue_buffer, queue_size)
+	{
 	_topic = topic;
+	_msg_size = msg_size;
 	_source = NULL;
 	_buffer = buffer;
-	_msg_size = msg_size;
-	_size = size;
-	_msg_queue = 0;
-	chMBInit(&_mailbox, (msg_t *) mail, size);
 }
 
 const char * BaseSubscriber::topic(void) {
@@ -21,28 +22,17 @@ BasePublisher * BaseSubscriber::source(void) {
 }
 
 BaseMessage * BaseSubscriber::get(void) {
-	BaseMessage * msg;
-	msg_t ret;
-
-	chSysLock();
-	ret = chMBFetchI(&_mailbox, (msg_t *) &msg);
-	chSysUnlock();
-	if (ret == RDY_OK)
-		return msg;
-	else
-		return NULL;
+	return _queue.get();
 }
 
 void BaseSubscriber::release(BaseMessage *d) {
-	_msg_queue--;
 	_source->release(d);
 }
 
 void BaseSubscriber::releaseI(BaseMessage *d) {
-	_msg_queue--;
 	_source->releaseI(d);
 }
 
 uint16_t BaseSubscriber::size(void) {
-	return _size;
+	return _queue.size();
 }

@@ -3,6 +3,7 @@
 
 #include "ch.h"
 #include "BaseMessage.hpp"
+#include "MessageQueue.hpp"
 #include "BasePublisher.hpp"
 
 typedef void (*callback_t)(BaseMessage *);
@@ -10,15 +11,14 @@ typedef void (*callback_t)(BaseMessage *);
 class BaseSubscriber {
 protected:
 	const char * _topic;
-	BasePublisher * _source;
-	Mailbox _mailbox;
-	uint8_t * _buffer;
-	// FIXME da rimuovere
 	uint32_t _msg_size;
-	uint16_t _size;
-	uint16_t _msg_queue;
+	BasePublisher * _source;
+	MessageQueue _queue;
+	// FIXME to substitute with memory pool growth (from heap) on publisher side?
+	uint8_t * _buffer;
 public:
-	BaseSubscriber(const char * topic, size_t msg_size, uint8_t * buffer, BaseMessage * mail,  uint32_t size);
+	BaseSubscriber(const char * topic, size_t msg_size, uint8_t * buffer,
+			BaseMessage ** queue_buffer, uint32_t queue_size);
 	const char * topic(void);
 	BasePublisher * source(void);
 	BaseSubscriber *last(void);

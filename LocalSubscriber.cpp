@@ -4,8 +4,10 @@
 #include "LocalSubscriber.hpp"
 #include "LocalPublisher.hpp"
 
-LocalSubscriber::LocalSubscriber(const char* topic, size_t msg_size,
-		uint8_t* buffer, BaseMessage* mail, uint32_t size, callback_t callback) : BaseSubscriber(topic, msg_size, buffer, mail, size) {
+LocalSubscriber::LocalSubscriber(const char * topic, size_t msg_size, uint8_t * buffer,
+		BaseMessage ** queue_buffer, uint32_t queue_size, callback_t callback) :
+		BaseSubscriber(topic, msg_size, buffer, queue_buffer, queue_size)
+{
 	_next = NULL;
 	_tp = currp;
 	_mask = 0;
@@ -27,11 +29,10 @@ void LocalSubscriber::link(LocalSubscriber* sub) {
 
 /* called from within lock */
 LocalSubscriber * LocalSubscriber::notify(BaseMessage* msg, int& n) {
-	/* post message to mailbox */
-	if(chMBPostI(&_mailbox, (msg_t)msg) == RDY_OK) {
-		chEvtSignalI(_tp, _mask);
+	/* Put message on queue. */
+	if(_queue.putI(msg)) {
 		msg->reference();
-		_msg_queue++;
+		chEvtSignalI(_tp, _mask);
 		n++;
 	}
 	return _next_notify;
@@ -47,14 +48,14 @@ void LocalSubscriber::subscribe(LocalPublisher* pub, eventmask_t emask) {
 	// TODO: ci va lock()?
 	_source = pub;
 	_mask = emask;
-	pub->subscribe(this, _buffer, chMBSizeI(&_mailbox));
+	pub->subscribe(this, _buffer, _queue.sizeI());
 }
 
 void LocalSubscriber::subscribe(RemotePublisher* pub, eventmask_t emask) {
 	// TODO: ci va lock()?
 	_source = pub;
 	_mask = emask;
-	pub->subscribe(this, _buffer, chMBSizeI(&_mailbox));
+	pub->subscribe(this, _buffer, _queue.sizeI());
 }
 
 callback_t LocalSubscriber::callback(void) {

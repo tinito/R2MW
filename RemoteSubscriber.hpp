@@ -15,7 +15,7 @@ protected:
 	RemoteSubscriber * _next;
 	RemoteSubscriber * _next_notify;
 public:
-	RemoteSubscriber(const char *, size_t, uint8_t *, BaseMessage *,  uint32_t);
+	RemoteSubscriber(const char * topic, size_t msg_size, uint8_t * buffer, BaseMessage ** queue_buffer,  uint32_t queue_size);
 	RemoteSubscriber * next(void);
 	void next(RemoteSubscriber *);
 	void link(RemoteSubscriber *);

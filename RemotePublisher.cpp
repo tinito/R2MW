@@ -33,16 +33,14 @@ int RemotePublisher::broadcastI(BaseMessage * msg) {
 	LocalSubscriber * sub = _subscribers;
 	int n = 0;
 
-	if (sub == NULL) {
-		return 0;
-	}
-
 	while (sub != NULL) {
 		sub = sub->notify(msg, n);
 	}
 
 	// lo fa da solo quando esce da ISR
 	//chSchRescheduleS();
+
+	palTogglePad(LED_GPIO, LED3);
 
 	return n;
 }

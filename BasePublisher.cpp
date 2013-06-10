@@ -48,17 +48,9 @@ void BasePublisher::release(BaseMessage* msg) {
 	chSysUnlock();
 }
 
-extern Thread * tp;
 void BasePublisher::releaseI(BaseMessage* msg) {
 	/* if the reference count is reduced to zero then free the memory */
 	if (msg->dereference()) {
 		chPoolAddI(&_pool, msg);
-#ifdef R2MW_TEST
-		palClearPad(TEST_GPIO, TEST1);
-//		if (tp != NULL) {
-//			chSchReadyI(tp);
-//			tp = NULL;
-//		}
-#endif /* R2MW_TEST */
 	}
 }

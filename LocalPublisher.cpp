@@ -27,10 +27,6 @@ int LocalPublisher::broadcast(BaseMessage * msg) {
 	int n = 0;
 
 	chSysLock();
-	if ((next == NULL) && (rnext == NULL)) {
-		chSysUnlock();
-		return 0;
-	}
 
 	while (next != NULL) {
 		next = next->notify(msg, n);
